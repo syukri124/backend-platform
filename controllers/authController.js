@@ -1,7 +1,7 @@
 // controllers/authController.js
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const Pengguna = require('../models/pengguna');
+const { Pengguna } = require('../models'); // ✅ BENAR
 
 exports.register = async (req, res) => {
   try {

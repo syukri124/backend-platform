@@ -1,5 +1,21 @@
 const { Pengguna } = require('../models');
 
+// GET pengguna by NIM
+exports.getPenggunaByNim = async (req, res) => {
+  try {
+    const { nim } = req.params;
+    const pengguna = await Pengguna.findOne({ where: { nim } });
+
+    if (!pengguna) {
+      return res.status(404).json({ error: 'Pengguna dengan NIM tersebut tidak ditemukan' });
+    }
+
+    res.json(pengguna);
+  } catch (error) {
+    res.status(500).json({ error: 'Gagal mengambil data pengguna berdasarkan NIM', detail: error.message });
+  }
+};
+
 // GET semua pengguna
 exports.getAllPengguna = async (req, res) => {
   try {

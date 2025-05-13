@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -12,6 +14,7 @@ const penggunaRoutes = require('./routes/penggunaRoutes'); // ✅ Tambahkan rout
 const kategoriRoutes = require('./routes/kategoriRoutes');
 
 // Memuat variabel lingkungan dari file .env
+require('dotenv').config();
 dotenv.config();
 
 const app = express();
@@ -21,7 +24,7 @@ app.use(express.json());
 app.use(cors());
 
 // Routes
-app.use('/api/auth', postinganRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/postingan', postinganRoutes);
 app.use('/api/komentar', komentarRoutes);
 app.use('/api/interaksi', interaksiRoutes);
