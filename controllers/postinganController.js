@@ -42,8 +42,8 @@ exports.getPostinganByNamaKategori = async (req, res) => {
 // CREATE Postingan
 exports.createPostingan = async (req, res) => {
     try {
-        const { id_penulis, id_kategori, judul, konten, anonim, status } = req.body;
-        const postingan = await Postingan.create({ id_penulis, id_kategori, judul, konten, anonim, status });
+        const { id_penulis, id_kategori, judul, konten, anonim } = req.body;
+        const postingan = await Postingan.create({ id_penulis, id_kategori, judul, konten, anonim });
 
         res.status(201).json(postingan); // Tidak perlu melakukan konversi waktu karena sudah disesuaikan di model
     } catch (error) {
@@ -92,9 +92,9 @@ exports.getPostinganById = async (req, res) => {
 // UPDATE Postingan
 exports.updatePostingan = async (req, res) => {
     try {
-        const { judul, konten, anonim, status } = req.body;
+        const { judul, konten, anonim,  } = req.body;
         const [jumlahUpdate, postingan] = await Postingan.update(
-            { judul, konten, anonim, status },
+            { judul, konten, anonim, },
             {
                 where: { id: req.params.id },
                 returning: true

@@ -49,7 +49,6 @@ exports.createInteraksi = async (req, res) => {
       id_komentar,
       id_postingan,
       tipe,
-      dibuat_pada: toWIB(new Date())
     });
     res.status(201).json(interaksi);
   } catch (error) {

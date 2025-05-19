@@ -37,13 +37,6 @@ module.exports = (sequelize) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    status: {
-      type: DataTypes.STRING(15),
-      defaultValue: 'aktif',
-      validate: {
-        isIn: [['draf', 'aktif', 'terarsip']],
-      },
-    },
     dibuat_pada: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

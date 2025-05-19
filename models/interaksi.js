@@ -10,7 +10,7 @@ module.exports = (sequelize) => {
       autoIncrement: true,
     },
     tipe: {
-    type: DataTypes.ENUM('suka', 'lapor', 'simpan'),
+    type: DataTypes.ENUM('upvote', 'downvote', 'lapor'),
     allowNull: false,
     },
     id_pengguna: {
