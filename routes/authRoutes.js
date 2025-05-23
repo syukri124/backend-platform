@@ -1,12 +1,14 @@
-// routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const { verifikasiToken } = require('../middleware/authMiddleware');
+const { authenticate } = require('../middleware/authMiddleware');
 
 
 router.post('/register', authController.register);
 router.post('/login', authController.login);
-router.get('/profile', verifikasiToken, authController.profile);
+
+// Route profile dan ubah kata sandi perlu autentikasi
+router.get('/profile', authenticate, authController.profile);
+router.put('/ubah-kata-sandi', authenticate, authController.ubahKataSandi);
 
 module.exports = router;

@@ -1,7 +1,7 @@
 const { Kategori } = require('../models');
 
 // GET semua kategori
-exports.getAllKategori = async (req, res) => {
+const getAllKategori = async (req, res) => {
   try {
     const kategori = await Kategori.findAll();
     res.json(kategori);
@@ -11,7 +11,7 @@ exports.getAllKategori = async (req, res) => {
 };
 
 // GET kategori berdasarkan ID
-exports.getKategoriById = async (req, res) => {
+const getKategoriById = async (req, res) => {
   try {
     const kategori = await Kategori.findByPk(req.params.id);
     if (!kategori) {
@@ -24,8 +24,12 @@ exports.getKategoriById = async (req, res) => {
 };
 
 // POST membuat kategori baru
-exports.createKategori = async (req, res) => {
+const createKategori = async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Silakan login terlebih dahulu' });
+    }
+
     const { nama } = req.body;
     if (!nama) {
       return res.status(400).json({ error: 'Field nama wajib diisi' });
@@ -39,7 +43,7 @@ exports.createKategori = async (req, res) => {
 };
 
 // PUT mengubah kategori berdasarkan ID
-exports.updateKategori = async (req, res) => {
+const updateKategori = async (req, res) => {
   try {
     const { nama } = req.body;
     const kategori = await Kategori.findByPk(req.params.id);
@@ -56,7 +60,7 @@ exports.updateKategori = async (req, res) => {
 };
 
 // DELETE kategori berdasarkan ID
-exports.deleteKategori = async (req, res) => {
+const deleteKategori = async (req, res) => {
   try {
     const kategori = await Kategori.findByPk(req.params.id);
     if (!kategori) {
@@ -68,4 +72,12 @@ exports.deleteKategori = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Gagal menghapus kategori', detail: error.message });
   }
+};
+
+module.exports = {
+  getAllKategori,
+  getKategoriById,
+  createKategori,
+  updateKategori,
+  deleteKategori,
 };

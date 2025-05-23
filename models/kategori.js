@@ -1,6 +1,17 @@
 const { Sequelize, DataTypes } = require('sequelize');
 
-// Mendefinisikan model Kategori
+// Daftar kategori ENUM (harus sama persis dengan di DB)
+const kategoriEnum = [
+  'Fasilitas Bangunan',
+  'Kebersihan dan Lingkungan',
+  'Sarana dan Prasarana Teknologi',
+  'Keamanan Kampus',
+  'Layanan Akademik',
+  'Kegiatan dan Organisasi Mahasiswa',
+  'Makanan dan Kafetaria',
+  'Lainnya'
+];
+
 module.exports = (sequelize) => {
   const Kategori = sequelize.define('Kategori', {
     id: {
@@ -9,7 +20,7 @@ module.exports = (sequelize) => {
       autoIncrement: true,
     },
     nama: {
-      type: DataTypes.STRING(50),  // Sesuaikan dengan VARCHAR(50)
+      type: DataTypes.ENUM(...kategoriEnum), // enum sesuai yang didefinisikan di database
       allowNull: false,
     },
   }, {

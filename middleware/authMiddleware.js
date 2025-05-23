@@ -1,27 +1,24 @@
 const jwt = require('jsonwebtoken');
 
-// Middleware verifikasi token
-const verifikasiToken = (req, res, next) => {
+// Middleware verifikasi token (autentikasi)
+const authenticate = (req, res, next) => {
   const authHeader = req.headers['authorization'];
+  // Ambil token dari header Authorization, formatnya: "Bearer tokenstring"
   const token = authHeader && authHeader.split(' ')[1];
 
-  if (!token) return res.status(401).json({ message: 'Token tidak ditemukan' });
+  if (!token) {
+    return res.status(401).json({ message: 'Token tidak ditemukan, silakan login terlebih dahulu' });
+  }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: 'Token tidak valid' });
-    req.user = user;
+  jwt.verify(token, process.env.JWT_SECRET, (err, userPayload) => {
+    if (err) {
+      return res.status(403).json({ message: 'Token tidak valid atau sudah kadaluwarsa' });
+    }
+    // Simpan data user dari token ke req.user agar bisa dipakai di controller
+    req.user = userPayload;
     next();
   });
 };
 
-// Middleware otorisasi berdasarkan peran
-const otorisasiPeran = (...peranDiizinkan) => {
-  return (req, res, next) => {
-    if (!peranDiizinkan.includes(req.user.peran)) {
-      return res.status(403).json({ message: 'Akses ditolak' });
-    }
-    next();
-  };
-};
 
-module.exports = { verifikasiToken, otorisasiPeran };
+module.exports = { authenticate };

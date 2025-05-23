@@ -20,6 +20,7 @@ dotenv.config();
 const app = express();
 
 // Middleware
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
@@ -28,7 +29,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/postingan', postinganRoutes);
 app.use('/api/komentar', komentarRoutes);
 app.use('/api/interaksi', interaksiRoutes);
-app.use('/api/pengguna', penggunaRoutes); // ✅ Tambahkan endpoint pengguna
+app.use('/api/pengguna', penggunaRoutes);
 app.use('/api/kategori', kategoriRoutes);
 
 // Koneksi ke database dan sinkronisasi

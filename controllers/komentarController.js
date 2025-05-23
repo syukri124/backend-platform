@@ -1,7 +1,7 @@
 const { Komentar, Postingan, Pengguna, Interaksi } = require('../models');
 
-// GET semua komentar
-exports.getAllKomentar = async (req, res) => {
+// GET semua komentar lengkap dengan relasi
+const getAllKomentar = async (req, res) => {
   try {
     const komentar = await Komentar.findAll({
       include: [
@@ -16,8 +16,8 @@ exports.getAllKomentar = async (req, res) => {
   }
 };
 
-// GET komentar berdasarkan ID
-exports.getKomentarById = async (req, res) => {
+// GET komentar berdasarkan ID dengan relasi
+const getKomentarById = async (req, res) => {
   try {
     const komentar = await Komentar.findByPk(req.params.id, {
       include: [
@@ -36,12 +36,15 @@ exports.getKomentarById = async (req, res) => {
 };
 
 // POST membuat komentar baru
-exports.createKomentar = async (req, res) => {
+const createKomentar = async (req, res) => {
   try {
-    const { id_penulis, id_postingan, konten, anonim } = req.body;
+    const { id_postingan, konten, anonim } = req.body;
 
-    if (!id_penulis || !id_postingan || !konten) {
-      return res.status(400).json({ error: 'id_penulis, id_postingan, dan konten wajib diisi' });
+    // Ambil ID penulis dari user login (dari token yang sudah diverifikasi)
+    const id_penulis = req.user.id;
+
+    if (!id_postingan || !konten) {
+      return res.status(400).json({ error: 'id_postingan dan konten wajib diisi' });
     }
 
     const komentar = await Komentar.create({
@@ -58,7 +61,7 @@ exports.createKomentar = async (req, res) => {
 };
 
 // PUT memperbarui komentar
-exports.updateKomentar = async (req, res) => {
+const updateKomentar = async (req, res) => {
   try {
     const komentar = await Komentar.findByPk(req.params.id);
     if (!komentar) {
@@ -80,7 +83,7 @@ exports.updateKomentar = async (req, res) => {
 };
 
 // DELETE komentar
-exports.deleteKomentar = async (req, res) => {
+const deleteKomentar = async (req, res) => {
   try {
     const komentar = await Komentar.findByPk(req.params.id);
     if (!komentar) {
@@ -92,4 +95,13 @@ exports.deleteKomentar = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Gagal menghapus komentar', detail: error.message });
   }
+};
+
+// Export semua function di sini
+module.exports = {
+  getAllKomentar,
+  getKomentarById,
+  createKomentar,
+  updateKomentar,
+  deleteKomentar,
 };

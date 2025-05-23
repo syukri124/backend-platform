@@ -1,12 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const penggunaController = require('../controllers/penggunaController');
+const {authenticate} = require('../middleware/authMiddleware')
+const  {forPengelola} = require('../middleware/authorizationPengguna');
 
-router.get('/', penggunaController.getAllPengguna);
-router.get('/:id', penggunaController.getPenggunaById);
-router.get('/nim/:nim', penggunaController.getPenggunaByNim);
-router.post('/', penggunaController.createPengguna);
-router.put('/:id', penggunaController.updatePengguna);
-router.delete('/:id', penggunaController.deletePengguna);
+// Route yang bisa diakses tanpa otorisasi khusus (misal get pengguna by nim, postingan, dll)
+router.get('/nim/:nim', authenticate, penggunaController.getPenggunaByNim);
+router.get('/:id/postingan', authenticate, penggunaController.getPostinganByPenggunaId);
+router.get('/:id', authenticate, penggunaController.getPenggunaById);
+router.get('/', authenticate, penggunaController.getAllPengguna);
+
+// Route yang hanya boleh diakses pengelola
+router.post('/', authenticate, forPengelola, penggunaController.createPengguna);
+router.put('/:id', authenticate, forPengelola, penggunaController.updatePengguna);
+router.delete('/:id', authenticate, forPengelola, penggunaController.deletePengguna);
 
 module.exports = router;

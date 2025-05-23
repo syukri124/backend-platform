@@ -9,7 +9,7 @@ module.exports = (sequelize) => {
       autoIncrement: true,
     },
     nim: {
-      type: DataTypes.STRING(12),
+      type: DataTypes.STRING(14),
       unique: true,
       allowNull: false,
     },
@@ -29,9 +29,10 @@ module.exports = (sequelize) => {
     peran: {
       type: DataTypes.STRING(10),
       allowNull: false,
+      defaultValue: 'pengguna', // ✅ Tambahkan default
       validate: {
         isIn: [['pengelola', 'pengguna']],
-      },
+      }
     },
     dibuat_pada: {
       type: DataTypes.DATE,
