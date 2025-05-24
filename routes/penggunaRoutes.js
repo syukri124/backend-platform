@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const penggunaController = require('../controllers/penggunaController');
-const {authenticate} = require('../middleware/authMiddleware')
-const  {forPengelola} = require('../middleware/authorizationPengguna');
+const {authenticate} = require('../middleware/authentikasi')
+const  {forPengelola} = require('../middleware/authorisasi');
 
 // Route yang bisa diakses tanpa otorisasi khusus (misal get pengguna by nim, postingan, dll)
 router.get('/nim/:nim', authenticate, penggunaController.getPenggunaByNim);

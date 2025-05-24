@@ -8,7 +8,7 @@ const kategoriEnum = [
   'Keamanan Kampus',
   'Layanan Akademik',
   'Kegiatan dan Organisasi Mahasiswa',
-  'Makanan dan Kafetaria',
+  'Makanan dan Kantin',
   'Lainnya'
 ];
 

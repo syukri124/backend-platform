@@ -1,12 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const kategoriController = require('../controllers/kategoriControllers');
-const { authenticate } = require('../middleware/authMiddleware');
+const { authenticate } = require('../middleware/authentikasi');
+const { forPengelola } = require('../middleware/authorisasi');
 
+// Bebas akses
 router.get('/', kategoriController.getAllKategori);
 router.get('/:id', kategoriController.getKategoriById);
-router.post('/', authenticate, kategoriController.createKategori);
-router.put('/:id', kategoriController.updateKategori);
-router.delete('/:id', kategoriController.deleteKategori);
+
+// Hanya untuk pengelola
+router.post('/', authenticate, forPengelola, kategoriController.createKategori);
+router.put('/:id', authenticate, forPengelola, kategoriController.updateKategori);
+router.delete('/:id', authenticate, forPengelola, kategoriController.deleteKategori);
 
 module.exports = router;

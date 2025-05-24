@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const interaksiController = require('../controllers/interaksiController');
-const { authenticate } = require('../middleware/authMiddleware');
-const { forPengguna, forPemilikAtauPengelola } = require('../middleware/authorizationInteraksi');
+const { authenticate } = require('../middleware/authentikasi');
+const { forPengguna, forPenggunaDanPengelola } = require('../middleware/authorisasi');
 
 router.get('/', interaksiController.getAllInteraksi);
 router.get('/:id', interaksiController.getInteraksiById);
@@ -13,6 +13,6 @@ router.post('/komentar', authenticate, forPengguna, interaksiController.createIn
 
 // Update dan delete hanya boleh dilakukan pemilik interaksi atau pengelola
 router.put('/:id', authenticate, forPengguna, interaksiController.updateInteraksi);
-router.delete('/:id', authenticate, forPemilikAtauPengelola, interaksiController.deleteInteraksi);
+router.delete('/:id', authenticate, forPenggunaDanPengelola, interaksiController.deleteInteraksi);
 
 module.exports = router;
