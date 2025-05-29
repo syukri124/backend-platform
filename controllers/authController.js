@@ -52,31 +52,43 @@ const register = async (req, res) => {
 
 // POST /login
 const login = async (req, res) => {
-  const { email, kata_sandi } = req.body;
-
   try {
-    const pengguna = await Pengguna.findOne({ where: { email } });
-    if (!pengguna) {
-      return res.status(401).json({ message: 'Email tidak ditemukan' });
+    const { email, kata_sandi } = req.body;
+
+    if (!email || !kata_sandi) {
+      return res.status(400).json({ message: 'Email dan kata sandi wajib diisi' });
     }
 
-    const isPasswordValid = await bcrypt.compare(kata_sandi, pengguna.kata_sandi);
-    if (!isPasswordValid) {
+    const pengguna = await Pengguna.findOne({ where: { email } });
+    if (!pengguna) {
+      return res.status(404).json({ message: 'Pengguna tidak ditemukan' });
+    }
+
+    const cocok = await bcrypt.compare(kata_sandi, pengguna.kata_sandi);
+    if (!cocok) {
       return res.status(401).json({ message: 'Kata sandi salah' });
     }
 
-    // ✅ pastikan ID disertakan dalam payload token
     const token = jwt.sign(
-      { id: pengguna.id, email: pengguna.email, nama: pengguna.nama },
+      { id: pengguna.id, peran: pengguna.peran },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
 
-    res.json({ token });
+    res.json({
+      token,
+      pengguna: {
+        id: pengguna.id,
+        email: pengguna.email,
+        nama: pengguna.nama,
+        peran: pengguna.peran
+      }
+    });
   } catch (err) {
-    res.status(500).json({ message: 'Terjadi kesalahan saat login', error: err.message });
+    res.status(500).json({ message: 'Login gagal', error: err.message });
   }
 };
+
 
 // GET /profile
 const profile = async (req, res) => {
