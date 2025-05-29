@@ -10,5 +10,6 @@ router.post('/login', authController.login);
 // Route profile dan ubah kata sandi perlu autentikasi
 router.get('/profile', authenticate, authController.profile);
 router.put('/ubah-kata-sandi', authenticate, authController.ubahKataSandi);
+router.put('/ubah-profil', authenticate, authController.ubahProfil);
 
 module.exports = router;

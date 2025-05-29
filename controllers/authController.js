@@ -20,11 +20,11 @@ const register = async (req, res) => {
 
     let finalPeran = 'pengguna';
 
-    if (peran === 'pengelola') {
-      if (kodeRahasia === 'pengelola') {
-        finalPeran = 'pengelola';
+    if (peran === 'peninjau') {
+      if (kodeRahasia === 'peninjau') {
+        finalPeran = 'peninjau';
       } else {
-        return res.status(403).json({ message: 'Kode rahasia tidak valid untuk membuat akun pengelola' });
+        return res.status(403).json({ message: 'Kode rahasia tidak valid untuk membuat akun peninjau' });
       }
     }
 
@@ -36,10 +36,20 @@ const register = async (req, res) => {
       peran: finalPeran,
     });
 
+    // Generate token untuk auto-login setelah register
+    const token = jwt.sign(
+      { id: pengguna.id, peran: pengguna.peran },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
     res.status(201).json({
       message: 'Registrasi berhasil',
-      pengguna: {
+      token,
+      user: {
         id: pengguna.id,
+        nim: pengguna.nim,
+        nama: pengguna.nama,
         email: pengguna.email,
         peran: pengguna.peran,
       }
@@ -76,11 +86,13 @@ const login = async (req, res) => {
     );
 
     res.json({
+      message: 'Login berhasil',
       token,
-      pengguna: {
+      user: {
         id: pengguna.id,
-        email: pengguna.email,
+        nim: pengguna.nim,
         nama: pengguna.nama,
+        email: pengguna.email,
         peran: pengguna.peran
       }
     });
@@ -93,8 +105,6 @@ const login = async (req, res) => {
 // GET /profile
 const profile = async (req, res) => {
   try {
-    console.log("ID dari req.user:", req.user.id); // Tambahkan ini
-
     const pengguna = await Pengguna.findByPk(req.user.id, {
       attributes: { exclude: ['kata_sandi'] }
     });
@@ -138,9 +148,52 @@ const ubahKataSandi = async (req, res) => {
   }
 };
 
+// PUT /ubah-profil - User dapat mengubah profil sendiri
+const ubahProfil = async (req, res) => {
+  try {
+    const { nama, email } = req.body;
+
+    if (!nama && !email) {
+      return res.status(400).json({ message: 'Nama atau email harus diisi' });
+    }
+
+    const pengguna = await Pengguna.findByPk(req.user.id);
+    if (!pengguna) {
+      return res.status(404).json({ message: 'Pengguna tidak ditemukan' });
+    }
+
+    // Cek apakah email sudah digunakan oleh user lain
+    if (email && email !== pengguna.email) {
+      const existingUser = await Pengguna.findOne({ where: { email } });
+      if (existingUser) {
+        return res.status(409).json({ message: 'Email sudah digunakan oleh pengguna lain' });
+      }
+    }
+
+    // Update data
+    if (nama) pengguna.nama = nama;
+    if (email) pengguna.email = email;
+
+    await pengguna.save();
+
+    // Return updated user data (exclude password)
+    const updatedUser = await Pengguna.findByPk(req.user.id, {
+      attributes: { exclude: ['kata_sandi'] }
+    });
+
+    res.json({
+      message: 'Profil berhasil diperbarui',
+      user: updatedUser
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Gagal mengubah profil', error: err.message });
+  }
+};
+
 module.exports = {
   register,
   login,
   profile,
   ubahKataSandi,
+  ubahProfil,
 };

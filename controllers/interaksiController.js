@@ -1,4 +1,5 @@
 const { Interaksi, Komentar, Postingan, Pengguna } = require('../models');
+const { createLikeNotification } = require('./notifikasiController');
 
 // GET semua interaksi
 const getAllInteraksi = async (req, res) => {
@@ -52,6 +53,42 @@ const createInteraksiPostingan = async (req, res) => {
       return res.status(400).json({ error: 'Tipe interaksi tidak valid' });
     }
 
+    // Cek apakah user sudah pernah melakukan interaksi yang sama
+    const existingInteraksi = await Interaksi.findOne({
+      where: {
+        id_pengguna,
+        id_postingan,
+        tipe
+      }
+    });
+
+    if (existingInteraksi) {
+      // Toggle: hapus interaksi jika sudah ada
+      await existingInteraksi.destroy();
+      return res.json({
+        message: `${tipe} berhasil dihapus`,
+        action: 'removed',
+        tipe: tipe
+      });
+    }
+
+    // Cek apakah user sudah melakukan interaksi berlawanan (upvote vs downvote)
+    if (tipe === 'upvote' || tipe === 'downvote') {
+      const oppositeType = tipe === 'upvote' ? 'downvote' : 'upvote';
+      const oppositeInteraksi = await Interaksi.findOne({
+        where: {
+          id_pengguna,
+          id_postingan,
+          tipe: oppositeType
+        }
+      });
+
+      if (oppositeInteraksi) {
+        // Hapus interaksi berlawanan
+        await oppositeInteraksi.destroy();
+      }
+    }
+
     const interaksi = await Interaksi.create({
       id_pengguna,
       id_postingan,
@@ -59,7 +96,47 @@ const createInteraksiPostingan = async (req, res) => {
       id_komentar: null,
     });
 
-    res.status(201).json(interaksi);
+    // Jika tipe adalah upvote (like), buat notifikasi untuk pemilik postingan
+    if (tipe === 'upvote') {
+      try {
+        // Ambil data postingan dan pemiliknya
+        const postingan = await Postingan.findByPk(id_postingan, {
+          include: [
+            {
+              model: Pengguna,
+              as: 'penulis',
+              attributes: ['id', 'nama']
+            }
+          ]
+        });
+
+        if (postingan && postingan.penulis) {
+          // Ambil data user yang melakukan like
+          const userPengirim = await Pengguna.findByPk(id_pengguna, {
+            attributes: ['nama']
+          });
+
+          if (userPengirim) {
+            await createLikeNotification(
+              id_pengguna,
+              postingan.penulis.id,
+              id_postingan,
+              userPengirim.nama,
+              postingan.judul
+            );
+          }
+        }
+      } catch (notifError) {
+        console.error('Error creating notification:', notifError);
+        // Jangan gagalkan request utama jika notifikasi gagal
+      }
+    }
+
+    res.status(201).json({
+      ...interaksi.toJSON(),
+      message: `${tipe} berhasil ditambahkan`,
+      action: 'added'
+    });
   } catch (error) {
     res.status(500).json({ error: 'Gagal membuat interaksi pada postingan', detail: error.message });
   }

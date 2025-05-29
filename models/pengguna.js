@@ -31,7 +31,7 @@ module.exports = (sequelize) => {
       allowNull: false,
       defaultValue: 'pengguna', // ✅ Tambahkan default
       validate: {
-        isIn: [['pengelola', 'pengguna']],
+        isIn: [['peninjau', 'pengguna']],
       }
     },
     dibuat_pada: {
