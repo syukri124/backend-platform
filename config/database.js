@@ -1,21 +1,20 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config(); // Pastikan dotenv dikonfigurasi di awal file
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME,   // Nama database
-  process.env.DB_USER,   // Pengguna database
-  process.env.DB_PASS,   // Kata sandi pengguna
-  {
-    host: process.env.DB_HOST,   // Host database
-    port: process.env.DB_PORT,   // Port database
-    dialect: 'postgres',         // Tipe database
-    logging: false,              // Nonaktifkan logging SQL
-    timezone: '+07:00',          // Atur timezone ke WIB (UTC+7)
-    dialectOptions: {
-      useUTC: false              // Jangan gunakan UTC di PostgreSQL
-    }
-  }
-);
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: 'postgres',
+  protocol: 'postgres',
+  logging: false,
+  timezone: '+07:00',
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  }
+});
+
+
 
 // Tes koneksi
 sequelize.authenticate()
