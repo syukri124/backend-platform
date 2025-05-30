@@ -34,6 +34,11 @@ module.exports = (sequelize) => {
         isIn: [['peninjau', 'pengguna']],
       }
     },
+    profile_picture: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      defaultValue: null,
+    },
     dibuat_pada: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

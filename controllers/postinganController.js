@@ -112,7 +112,7 @@ const createPostingan = async (req, res) => {
  */
 const getAllPostingan = async (req, res) => {
   try {
-    const { id_penulis, sort } = req.query;
+    const { id_penulis, filter, sort } = req.query;
 
     let whereClause = {};
     let orderClause = [['dibuat_pada', 'DESC']]; // default sort
@@ -120,6 +120,32 @@ const getAllPostingan = async (req, res) => {
     // Filter berdasarkan id_penulis jika ada
     if (id_penulis) {
       whereClause.id_penulis = id_penulis;
+    }
+
+    // Filter berdasarkan kategori jika ada dan bukan 'semua'
+    if (filter && filter !== 'semua') {
+      // Mapping dari slug kategori ke nama kategori
+      const categoryMapping = {
+        'fasilitas-kampus': 'Fasilitas Kampus',
+        'akademik': 'Akademik',
+        'kesejahteraan-mahasiswa': 'Kesejahteraan Mahasiswa',
+        'kegiatan-kemahasiswaan': 'Kegiatan Kemahasiswaan',
+        'sarana-prasarana-digital': 'Sarana dan Prasarana Digital',
+        'keamanan-ketertiban': 'Keamanan dan Ketertiban',
+        'lingkungan-kebersihan': 'Lingkungan dan Kebersihan',
+        'transportasi-akses': 'Transportasi dan Akses',
+        'kebijakan-administrasi': 'Kebijakan dan Administrasi',
+        'saran-inovasi': 'Saran dan Inovasi'
+      };
+
+      const categoryName = categoryMapping[filter];
+      if (categoryName) {
+        // Cari kategori berdasarkan nama
+        const kategori = await Kategori.findOne({ where: { nama: categoryName } });
+        if (kategori) {
+          whereClause.id_kategori = kategori.id;
+        }
+      }
     }
 
     // Sorting akan ditangani setelah mendapat data dengan upvote count

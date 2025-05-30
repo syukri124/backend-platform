@@ -25,6 +25,10 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
+    alasan_laporan: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
     dibuat_pada: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

@@ -66,12 +66,24 @@ const login = async (req, res) => {
     const { email, kata_sandi } = req.body;
 
     if (!email || !kata_sandi) {
-      return res.status(400).json({ message: 'Email dan kata sandi wajib diisi' });
+      return res.status(400).json({ message: 'Email/username dan kata sandi wajib diisi' });
     }
 
-    const pengguna = await Pengguna.findOne({ where: { email } });
+    // Check if input is email or username
+    const isEmail = email.includes('@');
+    const whereClause = isEmail ? { email } : { nama: email };
+
+    let pengguna = await Pengguna.findOne({ where: whereClause });
+
+    // If not found and input doesn't contain @, try searching by email as well
+    if (!pengguna && !isEmail) {
+      pengguna = await Pengguna.findOne({ where: { email } });
+    }
+
     if (!pengguna) {
-      return res.status(404).json({ message: 'Pengguna tidak ditemukan' });
+      return res.status(404).json({
+        message: 'Email atau username tidak ditemukan'
+      });
     }
 
     const cocok = await bcrypt.compare(kata_sandi, pengguna.kata_sandi);
@@ -190,10 +202,48 @@ const ubahProfil = async (req, res) => {
   }
 };
 
+// PUT /upload-profile-picture
+const uploadProfilePicture = async (req, res) => {
+  try {
+    const { profile_picture } = req.body;
+
+    if (!profile_picture) {
+      return res.status(400).json({ message: 'Profile picture data is required' });
+    }
+
+    // Validate base64 format
+    if (!profile_picture.startsWith('data:image/jpeg;base64,')) {
+      return res.status(400).json({ message: 'Only JPG format is allowed' });
+    }
+
+    const pengguna = await Pengguna.findByPk(req.user.id);
+    if (!pengguna) {
+      return res.status(404).json({ message: 'Pengguna tidak ditemukan' });
+    }
+
+    // Update profile picture
+    pengguna.profile_picture = profile_picture;
+    await pengguna.save();
+
+    // Return updated user data (exclude password)
+    const updatedUser = await Pengguna.findByPk(req.user.id, {
+      attributes: { exclude: ['kata_sandi'] }
+    });
+
+    res.json({
+      message: 'Profile picture berhasil diupload',
+      user: updatedUser
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Gagal upload profile picture', error: err.message });
+  }
+};
+
 module.exports = {
   register,
   login,
   profile,
   ubahKataSandi,
   ubahProfil,
+  uploadProfilePicture,
 };

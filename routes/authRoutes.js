@@ -11,5 +11,6 @@ router.post('/login', authController.login);
 router.get('/profile', authenticate, authController.profile);
 router.put('/ubah-kata-sandi', authenticate, authController.ubahKataSandi);
 router.put('/ubah-profil', authenticate, authController.ubahProfil);
+router.put('/upload-profile-picture', authenticate, authController.uploadProfilePicture);
 
 module.exports = router;

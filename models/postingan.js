@@ -70,6 +70,13 @@ module.exports = (sequelize) => {
     Postingan.hasMany(models.Interaksi, {
       foreignKey: 'id_postingan',
       as: 'interaksi',
+      onDelete: 'CASCADE',
+    });
+
+    Postingan.hasMany(models.Notifikasi, {
+      foreignKey: 'id_postingan',
+      as: 'notifikasi',
+      onDelete: 'CASCADE',
     });
   };
 

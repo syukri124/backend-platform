@@ -5,6 +5,9 @@ const getAllNotifikasi = async (req, res) => {
   try {
     const id_penerima = req.user.id;
 
+    // Cleanup orphaned notifications first
+    await cleanupOrphanedNotifications();
+
     const notifikasi = await Notifikasi.findAll({
       where: { id_penerima },
       order: [['dibuat_pada', 'DESC']],
@@ -17,23 +20,71 @@ const getAllNotifikasi = async (req, res) => {
         {
           model: Postingan,
           as: 'postingan',
-          attributes: ['id', 'judul']
+          attributes: ['id', 'judul'],
+          required: false // LEFT JOIN to include notifications even if post is deleted
         },
         {
           model: Komentar,
           as: 'komentar',
-          attributes: ['id', 'konten']
+          attributes: ['id', 'konten'],
+          required: false // LEFT JOIN to include notifications even if comment is deleted
         }
       ]
     });
 
-    res.json(notifikasi);
+    // Filter out notifications for deleted posts/comments
+    const validNotifikasi = notifikasi.filter(notif => {
+      // Keep system notifications and notifications where referenced content still exists
+      if (notif.tipe === 'system') return true;
+      if (notif.id_postingan && !notif.postingan) return false;
+      if (notif.id_komentar && !notif.komentar) return false;
+      return true;
+    });
+
+    res.json(validNotifikasi);
   } catch (error) {
     console.error('Error fetching notifications:', error);
     res.status(500).json({
       message: 'Gagal mengambil notifikasi',
       error: error.message
     });
+  }
+};
+
+// Helper function to cleanup orphaned notifications
+const cleanupOrphanedNotifications = async () => {
+  try {
+    // Delete notifications for non-existent posts
+    await Notifikasi.destroy({
+      where: {
+        id_postingan: {
+          [require('sequelize').Op.not]: null
+        }
+      },
+      include: [{
+        model: Postingan,
+        as: 'postingan',
+        where: null,
+        required: false
+      }]
+    });
+
+    // Delete notifications for non-existent comments
+    await Notifikasi.destroy({
+      where: {
+        id_komentar: {
+          [require('sequelize').Op.not]: null
+        }
+      },
+      include: [{
+        model: Komentar,
+        as: 'komentar',
+        where: null,
+        required: false
+      }]
+    });
+  } catch (error) {
+    console.error('Error cleaning up orphaned notifications:', error);
   }
 };
 

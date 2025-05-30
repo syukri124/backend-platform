@@ -39,7 +39,7 @@ const getInteraksiById = async (req, res) => {
 // POST membuat interaksi untuk postingan
 const createInteraksiPostingan = async (req, res) => {
   try {
-    const { id_postingan, tipe } = req.body;
+    const { id_postingan, tipe, alasan_laporan } = req.body;
 
     // Ambil id pengguna dari token yang sudah diverifikasi
     const id_pengguna = req.user.id;
@@ -51,6 +51,11 @@ const createInteraksiPostingan = async (req, res) => {
     const validTipe = ['upvote', 'downvote', 'lapor'];
     if (!validTipe.includes(tipe)) {
       return res.status(400).json({ error: 'Tipe interaksi tidak valid' });
+    }
+
+    // Validasi alasan laporan jika tipe adalah 'lapor'
+    if (tipe === 'lapor' && !alasan_laporan) {
+      return res.status(400).json({ error: 'Alasan laporan wajib diisi untuk tipe lapor' });
     }
 
     // Cek apakah user sudah pernah melakukan interaksi yang sama
@@ -94,6 +99,7 @@ const createInteraksiPostingan = async (req, res) => {
       id_postingan,
       tipe,
       id_komentar: null,
+      alasan_laporan: tipe === 'lapor' ? alasan_laporan : null,
     });
 
     // Jika tipe adalah upvote (like), buat notifikasi untuk pemilik postingan
@@ -145,7 +151,7 @@ const createInteraksiPostingan = async (req, res) => {
 // POST membuat interaksi untuk komentar
 const createInteraksiKomentar = async (req, res) => {
   try {
-    const { id_komentar, tipe } = req.body;
+    const { id_komentar, tipe, alasan_laporan } = req.body;
 
     // Ambil id pengguna dari token
     const id_pengguna = req.user.id;
@@ -159,11 +165,17 @@ const createInteraksiKomentar = async (req, res) => {
       return res.status(400).json({ error: 'Tipe interaksi tidak valid' });
     }
 
+    // Validasi alasan laporan jika tipe adalah 'lapor'
+    if (tipe === 'lapor' && !alasan_laporan) {
+      return res.status(400).json({ error: 'Alasan laporan wajib diisi untuk tipe lapor' });
+    }
+
     const interaksi = await Interaksi.create({
       id_pengguna,
       id_komentar,
       tipe,
       id_postingan: null,
+      alasan_laporan: tipe === 'lapor' ? alasan_laporan : null,
     });
 
     res.status(201).json(interaksi);
