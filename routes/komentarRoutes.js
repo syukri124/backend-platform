@@ -7,8 +7,8 @@ const { forPengguna, forPenggunaDanPeninjau } = require('../middleware/authorisa
 
 router.get('/', komentarController.getAllKomentar);
 router.get('/:id', komentarController.getKomentarById);
-router.post('/', authenticate, forPengguna, komentarController.createKomentar);
-router.put('/:id', authenticate, forPengguna, komentarController.updateKomentar);
+router.post('/', authenticate, forPenggunaDanPeninjau, komentarController.createKomentar);
+router.put('/:id', authenticate, forPenggunaDanPeninjau, komentarController.updateKomentar);
 router.delete('/:id', authenticate, forPenggunaDanPeninjau, komentarController.deleteKomentar);
 
 module.exports = router;

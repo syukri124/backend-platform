@@ -2,28 +2,31 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
-const { sequelize } = require('./models'); // Menggunakan sequelize dari models
+const { sequelize } = require('./models');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const postinganRoutes = require('./routes/postinganRoutes');
 const komentarRoutes = require('./routes/komentarRoutes');
 const interaksiRoutes = require('./routes/interaksiRoutes');
-const penggunaRoutes = require('./routes/penggunaRoutes'); // ✅ Tambahkan route pengguna
+const penggunaRoutes = require('./routes/penggunaRoutes');
 const kategoriRoutes = require('./routes/kategoriRoutes');
-const notifikasiRoutes = require('./routes/notifikasiRoutes'); // ✅ Tambahkan route notifikasi
-
-// Memuat variabel lingkungan dari file .env
-require('dotenv').config();
-dotenv.config();
+const notifikasiRoutes = require('./routes/notifikasiRoutes');
 
 const app = express();
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://aspirasiku.netlify.app',
+    /https:\/\/.*\.netlify\.app$/
+  ],
+  credentials: true
+}));
 
 app.get('/', (req, res) => {
   res.send('🚀 API Platform Aspirasi Mahasiswa berjalan!');
@@ -36,7 +39,7 @@ app.use('/api/komentar', komentarRoutes);
 app.use('/api/interaksi', interaksiRoutes);
 app.use('/api/pengguna', penggunaRoutes);
 app.use('/api/kategori', kategoriRoutes);
-app.use('/api/notifikasi', notifikasiRoutes); // ✅ Tambahkan route notifikasi
+app.use('/api/notifikasi', notifikasiRoutes);
 
 // Koneksi ke database dan sinkronisasi
 async function connectDatabase() {
