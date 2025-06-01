@@ -21,7 +21,7 @@ const register = async (req, res) => {
     let finalPeran = 'pengguna';
 
     if (peran === 'peninjau') {
-      if (kodeRahasia === 'peninjau') {
+      if (kodeRahasia === 'peninjauaspirasiku') {
         finalPeran = 'peninjau';
       } else {
         return res.status(403).json({ message: 'Kode rahasia tidak valid untuk membuat akun peninjau' });
